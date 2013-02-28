@@ -1,0 +1,8 @@
+prefix-containers
+=================
+
+A Trie (also called a digital tree, or prefix tree) is a data structure for
+storing sequences, which supports an efficient query to determine which keys
+contain a common prefix. The Trie can either simply store whether or not a
+sequence is contained within (TrieSet), or it can associate a value with each
+sequence (TrieMap).
