@@ -45,3 +45,26 @@ insertWith f ks v t = t { submaps = submapInsertWith f ks v (submaps t) }
 -- already for that sequence.
 insert :: Eq k => [k] -> v -> TrieMap k v -> TrieMap k v
 insert = insertWith const
+
+-- | Delete a sequence from a Trie. Do nothing if the sequence does not exist in the Trie.
+delete :: Eq k => [k] -> TrieMap k v -> TrieMap k v
+delete ks t = fromMaybe empty $ deleteMaybe ks t
+  where
+    deleteMaybe :: Eq k => [k] -> TrieMap k v -> Maybe (TrieMap k v)
+    deleteMaybe [] t
+        | null (submaps t) = Nothing
+        | otherwise = Just $ t { label = Nothing }
+    deleteMaybe ks t
+        | null ds = Nothing
+        | otherwise = Just $ t { submaps = ds }
+      where
+        ds = deleteSubmaps ks (submaps t)
+
+    deleteSubmaps :: Eq k => [k] -> [(k, TrieMap k v)] -> [(k, TrieMap k v)]
+    deleteSubmaps (x:xs) [] = []
+    deleteSubmaps (x:xs) ((c, m):ms)
+        | x == c && isJust m' = (c, fromJust m') : ms
+        | x == c = ms
+        | otherwise = (c, m) : deleteSubmaps (x:xs) ms
+      where
+        m' = deleteMaybe xs m
