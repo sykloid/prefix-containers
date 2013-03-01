@@ -77,6 +77,11 @@ delete ks t = fromMaybe empty $ deleteMaybe ks t
       where
         m' = deleteMaybe xs m
 
+-- | Apply the given function to the value stored with the given key. If the key is not in the Trie,
+-- do nothing.
+adjust :: Eq k => [k] -> (v -> v) -> TrieMap k v -> TrieMap k v
+adjust ks f t = maybe t (\v -> insert ks (f v) t) (lookup ks t)
+
 -- | Look up a sequence from a Trie. Return @Nothing@ if the sequence is not contained in the Trie.
 -- This is different from the case where some sequence with the given prefix exists in the Trie.
 lookup :: Eq k => [k] -> TrieMap k v -> Maybe v
