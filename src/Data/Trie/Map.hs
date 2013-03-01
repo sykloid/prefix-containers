@@ -8,9 +8,17 @@ module Data.Trie.Map (
     -- * Trie Modification
     insert,
     insertWith,
+    delete,
+
+    -- * Trie Queries
+    lookup,
+    hasPrefix,
 ) where
 
+import Prelude hiding (lookup)
 import Data.Maybe
+
+import qualified Prelude as P
 
 -- | The basic Trie data structure. Each node contains the value associated with the current prefix,
 -- and a set of sub-tries based on the symbols that can appear subsequently.
@@ -68,3 +76,16 @@ delete ks t = fromMaybe empty $ deleteMaybe ks t
         | otherwise = (c, m) : deleteSubmaps (x:xs) ms
       where
         m' = deleteMaybe xs m
+
+-- | Look up a sequence from a Trie. Return @Nothing@ if the sequence is not contained in the Trie.
+-- This is different from the case where some sequence with the given prefix exists in the Trie.
+lookup :: Eq k => [k] -> TrieMap k v -> Maybe v
+lookup [] t = label t
+lookup (k:ks) t = (P.lookup k $ submaps t) >>= lookup ks
+
+-- | Determine if the Trie contains some sequence with the given prefix. Note that the empty
+-- sequence is a prefix of every sequence, but @hasPrefix [] t@ will only return true if @t@ is
+-- non-empty.
+hasPrefix :: Eq k => [k] -> TrieMap k v -> Bool
+hasPrefix [] t = (not . null $ submaps t) || (isJust $ label t)
+hasPrefix (k:ks) t = maybe False (const True) (P.lookup k $ submaps t)
